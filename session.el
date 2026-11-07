@@ -1,4 +1,4 @@
-;;; session.el --- use variables, registers and buffer places across sessions
+;;; session.el --- use variables, registers and buffer places across sessions  -*- lexical-binding: nil -*-
 
 ;; Copyright 1996, 1997, 1998, 1999, 2001, 2002, 2003, 2010, 2011, 2012, 2015
 ;; Free Software Foundation, Inc.
@@ -1446,9 +1446,11 @@ using \\[save-buffers-kill-emacs] with prefix argument 0."
 		     (condition-case nil
 			 (check-coding-system session-save-file-coding-system)
 		       (error nil)))))
-	   (when coding-system-for-write
-	     (insert (format ";;; -*- coding: %S; -*-\n"
-			     session-save-file-coding-system)))
+	   ;; The cookie keeps Emacs 31+ from warning when the file is loaded
+	   (insert (if coding-system-for-write
+		       (format ";;; -*- coding: %S; lexical-binding: t -*-\n"
+			       session-save-file-coding-system)
+		     ";;; -*- lexical-binding: t -*-\n"))
 	   (insert ";;; Automatically generated on " (current-time-string)
 		   "\n;;; Invoked by " (user-login-name) "@" (system-name)
 		   " using " emacs-version "\n")
